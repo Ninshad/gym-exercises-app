@@ -1,9 +1,43 @@
 import React, { useState, useEffect } from 'react'
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
+import { exerciseOptions, fetchData } from '../utils/fetchData'
 
 const SearchExercises = () => {
 
     const [search, setSearch] = useState('');
+    const [exercises, setExercises] = useState([]);
+    const [bodyParts, setBodyParts] = useState([]);
+
+    useEffect(() => {
+      const fetchExercisesData = async () => {
+        const bodyPartsData = await fetch('https://exercisedb.p.rapidapi.com/exercises/bodyPartList', exerciseOptions);
+
+        setBodyParts(['all', ...bodyPartsData]);
+      }
+
+      fetchExercisesData();
+      
+    }, [])
+    
+
+    const handleSearch = async () =>{
+        if(search){
+          const exerciseData = await fetchData('https://exercisedb.p.rapidapi.com/exercises', exerciseOptions)
+
+          const searchedExercises = exerciseData.filter(
+            (item) =>  item.name.toLowerCase().includes(search)
+                    || item.bodyPart.toLowerCase().includes(search)
+                    || item.target.toLowerCase().includes(search)
+                    || item.equipment.toLowerCase().includes(search)
+          )
+
+          window.scrollTo({ top: 1800, left: 100, behavior: 'smooth' });
+          setSearch('')
+          setExercises(searchedExercises)
+         
+        }
+        
+    }
 
   return (
     <Stack alignItems="center" mt="37px" justifyContent="center" p="20px">
@@ -19,7 +53,10 @@ const SearchExercises = () => {
           placeholder="Search Exercises"
           type="text"
         />
-        <Button className="search-btn" sx={{ bgcolor: '#FF2625', color: '#fff', textTransform: 'none', width: { lg: '173px', xs: '80px' }, height: '56px', position: 'absolute', right: '0px', fontSize: { lg: '20px', xs: '14px' } }} >
+        <Button className="search-btn" 
+          sx={{ bgcolor: '#FF2625', color: '#fff', textTransform: 'none', width: { lg: '173px', xs: '80px' }, height: '56px', position: 'absolute', right: '0px', fontSize: { lg: '20px', xs: '14px' } }} 
+          onClick={handleSearch}
+          >
           Search
         </Button>
       </Box>
